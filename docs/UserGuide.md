@@ -27,11 +27,13 @@ QuickCache is a **desktop app for managing flashcards, optimized for use via a C
 
    * **`list`** : Lists all FlashCards.
 
-   * **`add`**`n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01` : Adds a contact named `John Doe` to the Address Book.
+   * **`add`**`add n/Plants give out ___ when they photosynthesise? n/Oxygen` :  Adds a question `Plants give out ___ when they photosynthesise?` with answer `Oxygen`.
+   
+   * **`test`**`1 a/Example answer` : Tests the 1st question shown in the current list with `Example answer` as the answer. 
 
-   * **`delete`**`3` : Deletes the 3rd contact shown in the current list.
+   * **`delete`**`3` : Deletes the 3rd flashcard shown in the current list.
 
-   * **`clear`** : Deletes all contacts.
+   * **`clear`** : Deletes all FlashCards.
 
    * **`exit`** : Exits the app.
 
@@ -46,16 +48,10 @@ QuickCache is a **desktop app for managing flashcards, optimized for use via a C
 **:information_source: Notes about the command format:**<br>
 
 * Words in `UPPER_CASE` are the parameters to be supplied by the user.<br>
-  e.g. in `add n/NAME`, `NAME` is a parameter which can be used as `add n/John Doe`.
-
-* Items in square brackets are optional.<br>
-  e.g `n/NAME [t/TAG]` can be used as `n/John Doe t/friend` or as `n/John Doe`.
-
-* Items with `…`​ after them can be used multiple times including zero times.<br>
-  e.g. `[t/TAG]…​` can be used as ` ` (i.e. 0 times), `t/friend`, `t/friend t/family` etc.
+  e.g. in `add n/ANSWER`, `ANSWER` is a parameter which can be used as `add n/Oxygen`.
 
 * Parameters can be in any order.<br>
-  e.g. if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
+  e.g. if the command specifies `n/QUESTION p/ANSWER`, `p/ANSWER n/QUESTION` is also acceptable.
 
 </div>
 
@@ -67,27 +63,34 @@ Shows a message explaning how to access the help page.
 
 Format: `help`
 
+### Adding a flashcard: `add`
 
-### Adding a person: `add`
+Adds a new flashcard to the application.
 
-Adds a person to the address book.
-
-Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]…​`
-
-<div markdown="span" class="alert alert-primary">:bulb: **Tip:**
-A person can have any number of tags (including 0)
-</div>
+Format: `add n/QUESTION n/ANSWER`
 
 Examples:
-* `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
-* `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
+* `add n/Plants give out ___ when they photosynthesise? n/Oxygen`
+
+### Testing a flashcard : `test`
+
+Tests a specified flashcard from the list.
+
+Format: `test INDEX a/ANSWER`
+
+* Tests the flashcard at the specified `INDEX`
+* The index refers to the index number shown in the displayed flashcard list.
+* The index **must be a positive integer**  1, 2, 3, …​
+* The `ANSWER` is case-sensitive.
+
+Examples:
+* `list` followed by `test 1 a/Example answer` tests the 1st flashcard in the list with `Example answer` as the answer.
 
 ### Listing all flashcards : `list`
 
 Shows a list of all flashcards currently created.
 
 Format: `list`
-
 
 ### Deleting a flashcard : `delete`
 
@@ -104,7 +107,7 @@ Examples:
 
 ### Clearing all entries : `clear`
 
-Clears all entries from the address book.
+Clears all entries from QuickCache.
 
 Format: `clear`
 
@@ -116,14 +119,14 @@ Format: `exit`
 
 ### Saving the data
 
-AddressBook data are saved in the hard disk automatically after any command that changes the data. There is no need to save manually.
+QuickCache data are saved in the hard disk automatically after any command that changes the data. There is no need to save manually.
 
 --------------------------------------------------------------------------------------------------------------------
 
 ## FAQ
 
 **Q**: How do I transfer my data to another Computer?<br>
-**A**: Install the app in the other computer and overwrite the empty data file it creates with the file that contains the data of your previous AddressBook home folder.
+**A**: Install the app in the other computer and overwrite the empty data file it creates with the file that contains the data of your previous QuickCache home folder.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -131,7 +134,8 @@ AddressBook data are saved in the hard disk automatically after any command that
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 t/friend t/colleague`
+**Add** | `add n/QUESTION n/ANSWER` <br> e.g., `add n/Plants give out ___ when they photosynthesise? n/Oxygen`
+**Test** | `test INDEX a/ANSWER`<br> e.g., `test 2 a/lorem ipsum`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **List** | `list`
