@@ -79,7 +79,7 @@ The following describes the various other contributions that I have made to the 
 
 * **Project management**:
   * Managed the overall format and structure of the various documentations excluding javadocs.
-  * Managed 22 issues on Github.
+  * Managed 23 issues on Github.
   * Helped to organise zoom meetings which included reminders and creation of the zoom calls.
 
 * **Enhancements to existing features**:
@@ -101,6 +101,7 @@ The following describes the various other contributions that I have made to the 
     * Planned out the entire format of both the UG
   * Developer Guide:
     * Wrote out the implementation for the `delete` feature (Pull request [\#131](https://github.com/AY2021S1-CS2103T-T13-2/tp/pull/131))
+    * Added and edited UML diagrams (Example Pull requests: [\#278](https://github.com/AY2021S1-CS2103T-T13-2/tp/pull/278), [\#287](https://github.com/AY2021S1-CS2103T-T13-2/tp/pull/287)
     * Helped to reformat and rewrite the entire features section of the DG (Pull request [\#245](https://github.com/AY2021S1-CS2103T-T13-2/tp/pull/245))
     * Ensured the accuracy and correctness of all UML diagrams
 

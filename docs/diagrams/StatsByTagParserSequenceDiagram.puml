@@ -1,0 +1,44 @@
+@startuml
+!include style.puml
+
+group Parse StatsByTagCommand
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":QuickCacheParser" as QuickCacheParser LOGIC_COLOR
+participant ":StatsCommandParser" as StatsCommandParser LOGIC_COLOR
+participant "s:StatsCommand" as StatsCommand LOGIC_COLOR
+end box
+
+activate LogicManager
+
+LogicManager -> QuickCacheParser : parseCommand("stats t/tag")
+activate QuickCacheParser
+
+create StatsCommandParser
+QuickCacheParser -> StatsCommandParser
+activate StatsCommandParser
+
+StatsCommandParser -> QuickCacheParser
+deactivate StatsCommandParser
+
+QuickCacheParser -> StatsCommandParser : parse("t/tag")
+activate StatsCommandParser
+
+create StatsCommand
+StatsCommandParser -> StatsCommand
+activate StatsCommand
+
+StatsCommand --> StatsCommandParser : s
+deactivate StatsCommand
+
+StatsCommandParser -> QuickCacheParser : s
+deactivate StatsCommandParser
+
+'Hidden arrow to position the destroy marker below the end of the activation bar.
+StatsCommandParser -[hidden]-> QuickCacheParser
+destroy StatsCommandParser
+
+QuickCacheParser --> LogicManager : s
+deactivate QuickCacheParser
+end
+@enduml

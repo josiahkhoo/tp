@@ -60,7 +60,7 @@ The sections below give more details of each component.
 
 The UI consists of a `MainWindow` that is made up of parts e.g.`CommandBox`, `ResultDisplay`, `FlashcardListPanel`, `StatusBarFooter` etc. All these, including the `MainWindow`, inherit from the abstract `UiPart` class.
 
-The `UI` component uses [JavaFx](https://openjfx.io) UI framework. The layout of these UI parts are defined in matching `.fxml` files that are in the `src/main/resources/view` folder. For example, the layout of the [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java) is specified in [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml)
+The `UI` component uses [JavaFx](https://openjfx.io) UI framework. The layout of these UI parts are defined in matching `.fxml` files that are in the `src/main/resources/view` folder. For example, the layout of the [`MainWindow`](https://github.com/AY2021S1-CS2103T-T13-2/tp/blob/master/src/main/java/quickcache/ui/MainWindow.java) is specified in [`MainWindow.fxml`](https://github.com/AY2021S1-CS2103T-T13-2/tp/blob/master/src/main/resources/view/MainWindow.fxml)
 
 The `UI` component,
 
@@ -110,7 +110,7 @@ The `Model`,
 
 The `Storage` component,
 * can save `UserPref` objects in json format and read it back.
-* can save the address book data in json format and read it back.
+* can save the QuickCache data in json format and read it back.
 
 ### Common classes
 
@@ -130,15 +130,16 @@ The features mentioned are:
 - [Tagging system](#tags)
 - [Editing a flashcard](#edit-flashcard)
 - [Deleting a flashcard by index](#delete-by-index)
-- [Delete by Tags](#delete-by-tag)
+- [Deleting by Tags](#delete-by-tag)
 - [Finding flashcards](#find-flashcards)
 - [Setting difficulty for flashcards](#difficulty)
 - [Displaying statistics of a flashcard](#display-statistics-of-a-flashcard)
+- [Displaying statistics of flashcards by tag](#display-statistics-of-flahcards-by-tag)
 - [Clearing all flashcards](#clear-all-flashcards)
-- [Clear statistics of a flashcard](#clear-statistics-of-a-flashcard)
+- [Clearing statistics of a flashcard](#clear-statistics-of-a-flashcard)
 - [Testing a flashcard](#test-a-flashcard)
-- [Export](#exporting-flashcards)
-- [Import](#importing-flashcards)
+- [Exporting flashcards](#export-flashcards)
+- [Importing flashcards](#import-flashcards)
 
 ### Add flashcard with open-ended question
 
@@ -193,7 +194,7 @@ Given below is an example usage scenario and how the Add Multiple Choice Questio
 
 Step 1. The user launches the application for the first time. `QuickCache` will be initialized with the initial state.
 
-Step 2. The user executes `addmcd q/question ans/1 c/first c/second` command to add a flashcard.
+Step 2. The user executes `addmcq q/question ans/1 c/first c/second` command to add a flashcard.
 The following sequence diagram shows how the input is parsed:
 
 ![AddMcqSequenceDiagram](images/AddMcqParserSequenceDiagram.png)
@@ -392,7 +393,7 @@ The following sequence diagram shows how the Delete By Index mechanism works:
 #### Implementation
 
 The Delete By Tag mechanism will delete flashcards specified by a given set of tags. Any flashcard containing
-at least one of the specified tags will be deleted.
+all of the specified tags will be deleted.
 
 It works by filtering for the flashcards in the `model` and deleting them one by one.
 
@@ -611,7 +612,56 @@ The following sequence diagram shows how the Displaystats mechanism works:
   * Pros: Demeter's law is no longer violated.
   * Cons: There is less abstraction.
   
-### Clearing all flashcards
+### Display statistics of flashcards by tag
+
+#### Implementation
+
+The Display stats by tag mechanism will allow the user to view a Pie Chart of the aggregated statistics of flashcards specified by a given set of tags. Any flashcard that contains all the specified tags will have their statistics aggregated.
+
+It works by filtering for the flashcards in the `model` and aggregating their statistics using `StatsCommand:getAggregatedStatistics`.
+
+##### Usage
+
+The following activity diagram summarizes what happens when a user executes stats command with a set of specified tags:
+
+![StatsByTagActivityDiagram](images/StatsByTagActivityDiagram.png)
+
+Given below is an example usage scenario and how the Displaystats mechanism behaves at each step.
+
+Step 1. The user launches the application after a few times of using the `TestCommand` feature. The `QuickCache` will be initialized with the existing QuickCache state.
+
+Step 2. The user executes `stats t/MCQ` command to display the aggregated `Statistics` of all flashcards with the tag `MCQ`.
+
+Step 3. This will call `StatsCommandParser#parse` which will then parse the arguments provided. Within `StatsCommandParser#parse`, `ParserUtil#parseTags` will be called to create a `FlashcardPredicate` using the tags.
+
+Step 4. The `FlashcardPredicate` is then passed to the `StatsCommand`.
+The following sequence diagram shows how the parser operation works:
+
+![StatsByTagParserSequenceDiagram](images/StatsByTagParserSequenceDiagram.png)
+
+Step 5. `StatsCommand#execute` will filter the `QuickCache` model with the provided predicate and get back the filtered list.
+
+Step 6. The filtered list will have their statistics aggregated through the `StatsCommand:getAggregatedStatistics`.
+
+Step 7. The aggregated `Statistics` will be passed to the GUI as part of the `Feedback` attribute within the `CommandResult`.
+
+Step 8. The GUI will then proceed to get the `Statistics` from `Feedback` and display its data in the form of a Pie Chart to the user.
+
+The following sequence diagram shows how the Display stats by tag mechanism works:
+
+![StatsByTagSequenceDiagram](images/StatsByTagSequenceDiagram.png)
+
+#### Design Considerations:
+
+* **Current choice:** Passes the `Statistics` object to the GUI in `Feedback` which is an attribute of `CommandResult`.
+  * Pros: Provides more abstraction as all of the data the GUI needs to display are in the `Feedback` object.
+  * Cons: There is a violation of Demeter's law as GUI interacts with an attribute of `CommandResult`.
+
+* **Alternative:** Do not use the `Feedback` object. Place all the data in the `CommandResult` object directly.
+  * Pros: Demeter's law is no longer violated.
+  * Cons: There is less abstraction.
+  
+### Clear all flashcards
 
 #### Implementation
 
@@ -692,9 +742,9 @@ The following sequence diagram shows how the Clearstats mechanism works:
 
 * **Alternative:** Edit the `Statistics` of the `Flashcard` directly
   * Pros: No "unnecessary" creation of a new `Flashcard` and `Statistics` object when a user requests to clear its statistics.
-  * Cons: `Flashcard` and `Statisitcs` become difficult to debug.
+  * Cons: `Flashcard` and `Statistics` become difficult to debug.
 
-### Exporting Flashcards
+### Export flashcards
 
 #### Implementation
 
@@ -731,7 +781,7 @@ The following activity diagram summarizes what happens when a user executes an `
   * Cons: Difficult to implement.
   * Cons: Command becomes more complicated as the entire path needs to be typed out.
 
-### Importing Flashcards
+### Import flashcards
 
 #### Implementation
 
@@ -788,10 +838,10 @@ The following activity diagram summarizes what happens when a user executes an `
 **Target user profile**:
 
 * Students with many modules who want to memorize points
-* prefer desktop apps over other types
-* prefers typing to mouse interactions
-* is reasonably comfortable using CLI apps
-* wants to monitor his/her progress
+* Prefer desktop apps over other types
+* Prefers typing to mouse interactions
+* Is reasonably comfortable using CLI apps
+* Wants to monitor his/her progress
 
 **Value proposition**: manage flashcards faster than a typical mouse/GUI driven app with
 a test feature and track the progress later.
@@ -887,7 +937,7 @@ For all use cases below, the **System** is the `QuickCache` and the **Actor** is
 2.  QuickCache shows a list of flashcards
 3.  User requests to delete a specific flashcard in the list
 4.  QuickCache deletes the flashcard
-5.  QuickCache updates flashcard save file (UC09)
+5.  QuickCache <u>updates flashcard save file (UC09)</u>
 
     Use case ends.
 
@@ -913,9 +963,9 @@ For all use cases below, the **System** is the `QuickCache` and the **Actor** is
 2.  QuickCache shows a list of flashcards
 3.  User requests to delete all flashcards with a specified tag
 4.  QuickCache deletes all flashcards that contains the specified tag
-5.  QuickCache updates flashcard save file (UC07)
+5.  QuickCache <u>updates flashcard save file (UC07)</u>
 6. QuickCache displays a message indicating that all flashcards with the specified tag has been deleted
-7. QuickCache updates flashcard save file (UC09)
+7. QuickCache <u>updates flashcard save file (UC09)</u>
 
     Use case ends.
 
@@ -927,7 +977,7 @@ For all use cases below, the **System** is the `QuickCache` and the **Actor** is
 
 1.  User requests to add a flashcard
 2.  QuickCache adds it to the list
-3.  QuickCache updates flashcard save file (UC09)
+3.  QuickCache <u>updates flashcard save file (UC09)</u>
 4.  User requests to list flashcards
 5.  QuickCache shows the list of flashcards including the recently added flashcard
 
@@ -961,7 +1011,7 @@ For all use cases below, the **System** is the `QuickCache` and the **Actor** is
 
 1.  User requests to add a flashcard
 2.  QuickCache adds it to the list
-3.  QuickCache updates flashcard save file (UC09)
+3.  QuickCache <u>updates flashcard save file (UC09)</u>
 4.  User requests to list flashcards
 5.  QuickCache shows the list of flashcards including the recently added flashcard
 
@@ -996,8 +1046,6 @@ For all use cases below, the **System** is the `QuickCache` and the **Actor** is
 
 **Use case: UC07 - Test a single flashcard**
 
-**Actor: User**
-
 **MSS:**
 
 1. User requests to list flashcards
@@ -1025,14 +1073,12 @@ For all use cases below, the **System** is the `QuickCache` and the **Actor** is
 
 **Use case: UC08 - Test a set of flashcards by category**
 
-**Actor: User**
-
 MSS:
 
 1. User requests to list categories
 2. QuickCache shows a list of categories
 3. User requests to test a specific category in the list
-4. User tests each flashcard on the list (UC07)
+4. User <ul>tests each flashcard on the list (UC07)</u>
 5. QuickCache shows the number of successful questions at the end
 
     Use case ends.
@@ -1071,11 +1117,11 @@ MSS:
 
 * 4b. The user cancels the test midway.
 
-  * Use case resumes from step 5.
+  Use case resumes from step 5.
 
 * 4c. The user runs out of time midway.
 
-  * Use case resumes from step 5.
+  Use case resumes from step 5.
 
 * 4d. The user closes QuickCache
 
@@ -1113,8 +1159,6 @@ MSS:
 
 **Use case: UC10 - Import flashcard data file**
 
-**Actor: User**
-
 MSS:
 
 1. User specifies the file name containing the set of flashcards to import from
@@ -1145,8 +1189,6 @@ MSS:
 
 **Use case: UC11 - Add tags during creation of a flashcard**
 
-**Actor: User**
-
 MSS:
 
 1. User creates a flashcard and specifies the tags associated with it
@@ -1164,14 +1206,12 @@ MSS:
 
 **Use case: UC12 - Edit an existing flashcard**
 
-**Actor: User**
-
 MSS:
 
 1. User wants to edit an existing flashcard
 2. User enters new information pertaining to the flashcard fields he wants to update
 4. QuickCache edits the flashcard with the new information
-5. QuickCache updates flashcard save file (UC09)
+5. QuickCache <u>updates flashcard save file (UC09)</u>
 
     Use case ends.
 
@@ -1200,8 +1240,6 @@ MSS:
     Use case resumes at step 2.
 
 **Use case: UC13 - Search for flashcards based on tags and/or question**
-
-**Actor: User**
 
 **MSS**
 
@@ -1233,8 +1271,6 @@ MSS:
 
 **Use case: UC15 - Clear statistics of a flashcard**
 
-**Preconditions: User has QuickCache open.**
-
 **MSS**
 
 1.  User requests for statistics of a flashcard
@@ -1255,9 +1291,6 @@ MSS:
 
 **Use case: UC16 - Export flashcard data file**
 
-
-**Actor: User**
-
 MSS:
 
 1. User requests to list flashcards
@@ -1276,8 +1309,6 @@ MSS:
     Use case ends.
 
 **Use case: UC17 - Add difficulty during creation of a flashcard**
-
-**Actor: User**
 
 MSS:
 
@@ -1301,8 +1332,6 @@ MSS:
 2.  Should be able to hold up to 1000 flashcards without a noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
 
-*{More to be added}*
-
 ### Glossary
 
 * **Mainstream OS**: Windows, Linux, Unix, OS-X
@@ -1314,12 +1343,14 @@ MSS:
 
 Given below are instructions to test the app manually.
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** These instructions only provide a starting point for testers to work on;
+<div markdown="span" class="alert alert-info">
+
+:information_source: **Note:** These instructions only provide a starting point for testers to work on;
 testers are expected to do more *exploratory* testing.
 
 </div>
 
-### F.1 Launch and shutdown
+### 1. Launch and shutdown
 
 1. Initial launch
 
@@ -1335,7 +1366,7 @@ testers are expected to do more *exploratory* testing.
    1. Re-launch the app by double-clicking the jar file<br>
        Expected: The data of all the flashcards is retained.
 
-### F.2 Creating a flashcard
+### 2. Creating a flashcard
 
 User can create two types of flashcards - containing open end question or multiple choice question.
 
@@ -1354,16 +1385,26 @@ User can create two types of flashcards - containing open end question or multip
    
    1. Test Case 4: `add q/Test OEQ 1 ans/Test ans 1 t/Invalid Tag`<br>
       Expected: QuickCache responds with an error message indicating that tag field is invalid. Flashcard is not added.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Note that flashcards containing similar questions and answers but different tags are treated as different flashcards.
-
+      
+      </div>
+      
    1. Test Case 5: `add q/Test OEQ 1 ans/Test ans 1 d/Invalid Difficulty`<br>
       Expected: QuickCache responds with an error message indicating that difficulty field is invalid. Flashcard is not added.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Note that flashcards containing similar questions and answers but different difficulty are treated as different flashcards.
-
+      
+      </div>
    1. Some incorrect `add` commands with missing fields to try: `add`, `add q/ ans/Test ans 1`, `add q/Test OEQ 1 ans/`, `add q/Test OEQ 1 ans/Test ans 1 t/`<br>
       Expected: QuickCache responds with an error message and no flashcard is added.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Empty field for difficulty `d/` is accepted and flashcard difficulty is set to unspecified.
-   
+      
+      </div>
    1. Some incorrect `add` commands with duplicate prefix to try: `add q/Test OEQ 1 q/Test OEQ 2 ans/Test ans 1`, `add q/Test OEQ 1 ans/Test ans 1 ans/Test ans 2`, `add q/Test OEQ 1 ans/Test ans 1 d/LOW d/HIGH`<br>
       Expected: QuickCache responds with an error message and no flashcard is added.
 
@@ -1382,23 +1423,33 @@ User can create two types of flashcards - containing open end question or multip
    
    1. Test Case 4: `addmcq q/Test MCQ 1 ans/1 c/Choice1 c/Choice2 t/Invalid Tag`<br>
       Expected: QuickCache responds with an error message indicating that tag field is invalid. Flashcard is not added.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Note that flashcards containing similar questions and answers but different tags are treated as different flashcards.
-
+        
+      </div>
+      
    1. Test Case 5: `addmcq q/Test MCQ 1 ans/1 c/Choice1 c/Choice2 d/Invalid Difficulty`<br>
       Expected: QuickCache responds with an error message indicating that difficulty field is invalid. Flashcard is not added.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Note that flashcards containing similar questions and answers but different difficulty are treated as different flashcards.
-   
+      
+      </div>
    1. Test Case 6: `addmcq q/Test MCQ 1 ans/3 c/Choice1 c/Choice2`<br>
       Expected: QuickCache responds with an error message indicating that ans field is invalid. Flashcard is not added.
 
    1. Some incorrect `addmcq` commands with missing fields to try: `addmcq`, `addmcq q/ ans/1 c/Choice1`, `addmcq q/Test MCQ 1 ans/ c/Choice1`, `addmcq q/Test MCQ 1 ans/1 c/`<br>
       Expected: QuickCache responds with an error message and no flashcard is added.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Empty field for difficulty `d/` is accepted and flashcard difficulty is set to unspecified.
    
+      </div>
    1. Some incorrect `addmcq` commands with duplicate prefix to try: `addmcq q/Test MCQ 1 q/Test MCQ 2 ans/1 c/Choice1 c/Choice2`, `addmcq q/Test MCQ 1 ans/1 ans/2 c/Choice1 c/Choice2`<br>
       Expected: QuickCache responds with an error message and no flashcard is added.
 
-### F.3 Opening a flashcard
+### 3. Opening a flashcard
 
 1. Prerequisites: 
 
@@ -1415,7 +1466,7 @@ User can create two types of flashcards - containing open end question or multip
 1. Other incorrect `open` commands to try: `open`, `open x` (where x is more than the last index in flashcard list), `open Invalid`<br>
    Expected: Error message will appear with instructions on how to use the `open` command.
 
-### F.4 Editing a flashcard
+### 4. Editing a flashcard
 
 1. Prerequisites: 
 
@@ -1425,7 +1476,7 @@ User can create two types of flashcards - containing open end question or multip
 
    1. For some test cases listed bellow to work, user's first three flashcards should be the same as the sample starting flashcards that was provided.
 
-1. Test Case 1: `edit 1 q/Edited quesiton ans/New answer`<br>
+1. Test Case 1: `edit 1 q/Edited question ans/New answer`<br>
    Expected: The flashcard with index 1 is edited with the specified parameters. The details of the question will be shown in the display window on the side.
 
 1. Test Case 2: `edit 1 t/`<br>
@@ -1439,8 +1490,12 @@ User can create two types of flashcards - containing open end question or multip
 
 1. Test Case 5: `edit 1 d/`<br>
    Expected: Difficulty tag is removed from the flashcard with index 1. The details of the question will be shown in the display window on the side.<br>
+   <div markdown="block" class="alert alert-info">
+   
    :information_source: User can also use `edit 1 d/UNSPECIFIED` to achieve the same result.
-
+   
+   </div>
+   
 1. Test Case 6: `edit 1 c/Choice1`<br>
    Expected: Error message displayed. Choices should not be provided for open ended questions.
 
@@ -1462,28 +1517,28 @@ User can create two types of flashcards - containing open end question or multip
 1. Other incorrect `edit` commands to try: `edit`, `edit x` (where x is more than the last index in flashcard list), `edit Invalid`<br>
    Expected: Error message will appear with instructions on how to use the `edit` command.
 
-### F.5 Finding flashcards
+### 5. Finding flashcards
 
 Users can fins flashcards both through keywords using the `q/` prefix and through tags using the `t/` prefix.
 
 1. Prerequisites: For some test cases listed bellow to work, user should have the sample starting flashcards that was provided stored in QuickCache.
 
 1. Test Case 1: `find q/Sample`<br>
-   Expected: Finds all flashcards containing the keyword `Sample` (not case sensative) in its question. Found flashcards will be listed out.
+   Expected: Finds all flashcards containing the keyword `Sample` (not case-sensitive) in its question. Found flashcards will be listed out.
 
 1. Test Case 2: `find q/Sample q/Singapore`<br>
-   Expected: Finds all flashcards containing the keyword `Sample` and `Singapore` (not case sensative) in its question. Found flashcards will be listed out.
+   Expected: Finds all flashcards containing the keyword `Sample` and `Singapore` (not case-sensitive) in its question. Found flashcards will be listed out.
 
 1. Test Case 3: `find t/OEQ`<br>
-   Expected: Finds all flashcards containing the tag `OEQ` (case sensative). Found flashcards will be listed out.
+   Expected: Finds all flashcards containing the tag `OEQ` (case-sensitive). Found flashcards will be listed out.
 
 1. Test Case 4: `find q/Sample t/OEQ t/General`<br>
-   Expected: Finds all flashcards containing the tags `OEQ` and `General` (case sensative) and keyword `Sample` (not case sensative) in its question. Found flashcards will be listed out.
+   Expected: Finds all flashcards containing the tags `OEQ` and `General` (case-sensitive) and keyword `Sample` (not case-sensitive) in its question. Found flashcards will be listed out.
 
 1. Other incorrect `find` commands to try: `find`, `find Something`, `find q/`, `find t/`<br>
    Expected: Error message will appear with instructions on how to use the `find` command.
 
-### F.6 Deleting flashcards
+### 6. Deleting flashcards
 
 There are 2 ways to delete flashcards – by index or by tags.
 
@@ -1510,7 +1565,7 @@ There are 2 ways to delete flashcards – by index or by tags.
    1. Test Case 1: `clear`
       Expected: All flashcards deleted from QuickCache.
 
-### F.7 Testing a flashcard
+### 7. Testing a flashcard
 
 1. Prerequisites: List all flashcards using the `list` command. There is at least one flashcard stored in QuickCache.
 
@@ -1518,8 +1573,11 @@ There are 2 ways to delete flashcards – by index or by tags.
 
    1. Test Case 1: `test 1 ans/Singapore`<br>
       Expected: Checks if answer provided matches with the answer stored in the open ended question within the first flashcard. Users starting off with the sample questions will expect test to be correct. Flashcard statistics will be updated.<br>
-      :information_source: Answers are not case sensitive.
-
+      <div markdown="block" class="alert alert-info">
+  
+      :information_source: Answers are not case-sensitive.
+    
+      </div>
    1. Test Case 2: `test 1 ans/`<br>
       Expected: Error message will appear as answer cannot be blank. Flashcard statistics will not be updated.
 
@@ -1527,15 +1585,18 @@ There are 2 ways to delete flashcards – by index or by tags.
 
    1. Test Case 1: `test 2 o/2`<br>
       Expected: Checks if option provided matches with the option stored in the multiple choice question within the second flashcard. Users starting off with the sample questions will expect test to be correct. Flashcard statistics will be updated.<br>
+      <div markdown="block" class="alert alert-info">
+  
       :information_source: Answers are not case sensitive.
-
+      
+      </div>
    1. Test Case 2: `test 1 o/`<br>
       Expected: Error message will appear as option cannot be blank. Flashcard statistics will not be updated.
 
    1. Other incorrect `test` commands to try: `test`, `test x ans/...` (where x is 0 or larger than the list size)<br>
       Expected: Error message will appear with instructions on how to use the test command.
 
-### F.8 Displaying statistics
+### 8. Displaying statistics
 
 There are 2 ways to display statistics of flashcards – by index or by tags.
 
@@ -1563,7 +1624,7 @@ There are 2 ways to display statistics of flashcards – by index or by tags.
    1. Test Case 3: `stats t/`<br>
       Expected: Error message will appear on display. Tags cannot be empty.
 
-### F.9 Clearing statistics in a flashcard
+### 9. Clearing statistics in a flashcard
 
 1. Prerequisites: 
 
@@ -1580,7 +1641,7 @@ There are 2 ways to display statistics of flashcards – by index or by tags.
 1. Other incorrect `clearstats` commands to try: `clearstats`, `clearstats x` (where x is more than the last index in flashcard list), `clearstats Invalid`<br>
    Expected: Error message will appear with instructions on how to use the `clearstats` command.
 
-### F.10 Sharing flashcards
+### 10. Sharing flashcards
 
 User can choose to import or export their data
 
@@ -1597,10 +1658,13 @@ User can choose to import or export their data
    
    1. Test case 1: `import my-flashcard.json`<br>
       Expected: Flashcards within the file will be imported in your local QuickCache.<br>
+      <div markdown="block" class="alert alert-info">
+      
       :information_source: Flashcards that has previously been imported and has not been modified will be ignored. Flashcards that already exists will not be imported as well.
 
-
-### F.11 Saving data
+      </div>
+      
+### 11. Saving data
 
 1. Dealing with missing data file
 

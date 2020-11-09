@@ -19,7 +19,7 @@ import quickcache.model.flashcard.exceptions.FlashcardNotFoundException;
  * so as to ensure that the person being added or updated is unique
  * in terms of identity in the UniqueFlashcardList.
  * However, the removal of a Flashcard uses Flashcard#equals(Object) so
- * as to ensure that the person with exactly the same fields will be removed.
+ * as to ensure that the flashcard with exactly the same fields will be removed.
  * <p>
  * Supports a minimal set of list operations.
  *

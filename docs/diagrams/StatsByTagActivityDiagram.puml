@@ -1,0 +1,20 @@
+@startuml
+scale max 300 height
+
+start
+:User executes stats by tag command;
+:QuickCache parses the user input;
+
+if () then ([input is valid])
+    :Create predicates based on specified tags;
+    :Filter the model to get flashcards with the specified tags;
+    :Get aggregated statistics of the flashcards;
+    :Pass the result to the UI;
+else ([input is invalid])
+    :Throw ParseException;
+    :Pass the ParseException to the UI;
+endif
+:UI displays the results to the User;
+
+stop
+@enduml

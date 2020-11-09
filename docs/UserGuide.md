@@ -100,13 +100,13 @@ Here is a quick start on how you can start using our app in your own computer.
 
    * **`edit`**`1 ans/Edited answer` : Edit the answer of the first flashcard on the list to become `Edited answer`.
 
-   * **`list`** : Lists all FlashCards.
+   * **`list`** : Lists all flashcards.
 
    * **`find`** `find t/MCQ q/All mammals q/survive t/Biology` : Finds all Flashcards tagged to the tag `MCQ` and `Biology` and has keywords `All`, `mammals` and `survive` in question.
 
    * **`delete`**`3` : Deletes the 3rd flashcard shown in the current list.
 
-   * **`clear`** : Deletes all FlashCards.
+   * **`clear`** : Deletes all flashcards.
 
    * **`test`**`1 ans/Example answer` : Tests the 1st question shown in the current list with `Example answer` as the answer.
 
@@ -273,10 +273,11 @@ To find flashcards, you can find them by specifying keywords within their questi
 
 :information_source: You must provide at least one search parameter.
 
-<div markdown="block" class="alert alert-danger">
-:exclamation: Take note that only flashcards which fulfill **all** the specified search parameters will be displayed. Flashcards that fulfill only some search parameters will not be diplayed.
-
 </div>
+
+<div markdown="block" class="alert alert-danger">
+
+:exclamation: Take note that only flashcards which fulfill **all** the specified search parameters will be displayed. Flashcards that fulfill only some search parameters will not be diplayed.
 
 </div>
 
